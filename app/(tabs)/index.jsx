@@ -1,10 +1,9 @@
 import { GlobalContext } from "@/context/GlobalContext";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
-  PermissionsAndroid,
-  Platform,
+  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,39 +15,33 @@ import RNBluetoothClassic from "react-native-bluetooth-classic";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function BluetoothClassicDemo() {
-  const [pairedDevices, setPairedDevices] = useState([]);
   const [receivedData, setReceivedData] = useState([]);
   const [inputText, setInputText] = useState("");
-  const dataSubscription = useRef(null);
-  const { connectedDevice, setConnectedDevice } = useContext(GlobalContext);
+
+  const {
+    connectedDevice,
+    setConnectedDevice,
+    pairedDevices,
+    setPairedDevices,
+    sendData,
+    sendCustomData,
+    dataSubscription,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
-    if (Platform.OS === "android") {
-      requestBluetoothPermissions();
+    if (connectedDevice) {
+      dataSubscription.current = connectedDevice.onDataReceived((event) => {
+        setReceivedData((prev) => [...prev, event.data]);
+      });
     }
-
-    return () => {
-      if (dataSubscription.current) dataSubscription.current.remove();
-      if (connectedDevice) connectedDevice.disconnect();
-    };
-  }, [connectedDevice]);
-
-  const requestBluetoothPermissions = async () => {
-    await PermissionsAndroid.requestMultiple([
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-    ]);
-  };
+  }, [connectedDevice, inputText, receivedData, dataSubscription]);
 
   const listPairedDevices = async () => {
     try {
       const devices = await RNBluetoothClassic.getBondedDevices();
       setPairedDevices(devices);
-      console.log("Paired devices:", devices);
-    } catch (err) {
-      console.error("Error listing paired devices:", err);
-      Alert.alert("Error", String(err));
+    } catch {
+      Alert.alert("Can't find pair Devices");
     }
   };
 
@@ -60,38 +53,13 @@ export default function BluetoothClassicDemo() {
       });
 
       if (isConnected) {
-        console.log("Connected to:", device.name);
         setConnectedDevice(device);
-
         dataSubscription.current = device.onDataReceived((event) => {
-          console.log("Received:", event.data);
           setReceivedData((prev) => [...prev, event.data]);
         });
       }
     } catch (err) {
-      console.error("Connection failed:", err);
       Alert.alert("Connection failed", String(err));
-    }
-  };
-
-  const sendData = async (text) => {
-    if (!connectedDevice) {
-      Alert.alert("Not connected", "Please connect to a device first.");
-      return;
-    }
-    try {
-      await connectedDevice.write(text);
-      console.log("Data sent:", text);
-    } catch (err) {
-      console.error("Write failed:", err);
-      Alert.alert("Send failed", String(err));
-    }
-  };
-
-  const sendCustomData = () => {
-    if (inputText.trim()) {
-      sendData(inputText);
-      setInputText("");
     }
   };
 
@@ -102,7 +70,7 @@ export default function BluetoothClassicDemo() {
     setConnectedDevice(null);
     setReceivedData([]);
   };
-  console.log(receivedData);
+
   return (
     <SafeAreaView style={styles.container}>
       {!connectedDevice ? (
@@ -116,6 +84,8 @@ export default function BluetoothClassicDemo() {
             style={styles.deviceList}
             data={pairedDevices}
             keyExtractor={(item) => item.address}
+            numColumns={2}
+            columnWrapperStyle={{ gap: 20 }}
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.deviceItem} onPress={() => connectToDevice(item)}>
                 <Text style={styles.deviceName}>{item.name || "Unknown Device"}</Text>
@@ -126,7 +96,7 @@ export default function BluetoothClassicDemo() {
           />
         </View>
       ) : (
-        <View style={styles.connectedContainer}>
+        <KeyboardAvoidingView style={styles.connectedContainer}>
           <View style={styles.header}>
             <View>
               <Text style={styles.connectedLabel}>Connected to:</Text>
@@ -148,7 +118,7 @@ export default function BluetoothClassicDemo() {
                 <Text style={styles.commandButtonText}>⚙️ Motor</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.commandButton, styles.bipButton]} onPress={() => sendData("BIP BIP")}>
+              <TouchableOpacity style={[styles.commandButton, styles.bipButton]} onPress={() => sendData("bip bip")}>
                 <Text style={styles.commandButtonText}>🔔 Bip Bip</Text>
               </TouchableOpacity>
 
@@ -166,9 +136,9 @@ export default function BluetoothClassicDemo() {
                 placeholder="Enter custom command..."
                 value={inputText}
                 onChangeText={setInputText}
-                onSubmitEditing={sendCustomData}
+                onSubmitEditing={() => sendCustomData(inputText, setInputText)}
               />
-              <TouchableOpacity style={styles.sendButton} onPress={sendCustomData}>
+              <TouchableOpacity style={styles.sendButton} onPress={() => sendCustomData(inputText, setInputText)}>
                 <Text style={styles.sendButtonText}>Send</Text>
               </TouchableOpacity>
             </View>
@@ -188,7 +158,7 @@ export default function BluetoothClassicDemo() {
               )}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       )}
     </SafeAreaView>
   );
@@ -229,9 +199,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 16,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: 20,
     borderLeftWidth: 4,
     borderLeftColor: "#2196F3",
+    width: "50%",
   },
   deviceName: {
     fontSize: 16,
