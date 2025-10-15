@@ -4,15 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function BluetoothCarController() {
-  const {
-    connectedDevice,
-    setConnectedDevice,
-    pairedDevices,
-    setPairedDevices,
-    sendData,
-    sendCustomData,
-    dataSubscription,
-  } = useContext(GlobalContext);
+  const { connectedDevice, sendData } = useContext(GlobalContext);
   const [speed, setSpeed] = useState(50);
 
   const handleSpeedChange = (newSpeed) => {
