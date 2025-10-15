@@ -34,7 +34,7 @@ export default function BluetoothClassicDemo() {
         setReceivedData((prev) => [...prev, event.data]);
       });
     }
-  }, [connectedDevice, inputText, receivedData, dataSubscription]);
+  }, [ dataSubscription]);
 
   const listPairedDevices = async () => {
     try {
