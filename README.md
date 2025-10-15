@@ -1,186 +1,234 @@
-# HC-06 Bluetooth Communication Project
+# 🚗 HC-06 Bluetooth Car Controller With React Native
 
-A simple and effective Arduino project for bidirectional communication using the HC-06 Bluetooth module. This project enables wireless data transmission between an Arduino board and any Bluetooth-enabled device (smartphone, tablet, or computer).
+A React Native mobile application for controlling Arduino-based RC cars via HC-06 Bluetooth module. Features an intuitive car remote control interface with real-time command sending and response handling.
 
-## Features
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![React Native](https://img.shields.io/badge/React%20Native-0.72+-61DAFB.svg)
+![Arduino](https://img.shields.io/badge/Arduino-Compatible-00979D.svg)
 
-- **Bidirectional Communication**: Send and receive data wirelessly
-- **Real-time Data Transfer**: Instant communication with minimal latency
-- **Auto-send Capability**: Periodic automatic data transmission
-- **Command Recognition**: Responds to specific commands from connected devices
-- **Echo Functionality**: Confirms received data by echoing back
-- **Serial Monitor Integration**: Debug and test via USB serial connection
+## ✨ Features
 
-## Hardware Requirements
+- 🔍 **Device Scanning** - Automatically scan and list paired Bluetooth devices
+- 🎮 **Car Remote Interface** - Intuitive directional controls (Forward, Backward, Left, Right)
+- ⚡ **Speed Control** - Adjustable speed from 0-100% with preset options
+- 🔊 **Action Buttons** - Horn, Light toggle, and Turbo mode
+- 🔄 **Real-time Communication** - Send and receive data from Arduino in real-time
+- 🎨 **Modern UI** - Clean, colorful, and responsive interface
 
-- Arduino board (Uno, Nano, Mega, etc.)
+### Device List Screen
+
+- Scan for paired HC-06 devices
+- Connect with a single tap
+
+### Controller Screen
+
+- Directional controls with visual feedback
+- Speed adjustment slider
+- Quick action buttons
+
+## 🛠️ Tech Stack
+
+- **React Native** - Cross-platform mobile development
+- **react-native-bluetooth-classic** - Bluetooth communication
+
+## 📋 Prerequisites
+
+- Node.js (v14 or higher)
+- React Native CLI
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
+- Arduino IDE
 - HC-06 Bluetooth Module
-- Jumper wires
-- 1-2kΩ resistor (for voltage divider, recommended)
-- Breadboard (optional)
 
-## Wiring Diagram
+## 🚀 Installation
 
-```
-HC-06 Module    Arduino Board
------------     -------------
-VCC       -->   5V
-GND       -->   GND
-TXD       -->   Pin 10 (RX)
-RXD       -->   Pin 11 (TX) [through 1-2kΩ resistor]
-```
+### Mobile App Setup
 
-**Note**: HC-06 RX pin operates at 3.3V. Use a voltage divider or resistor to protect it from Arduino's 5V output.
-
-## Software Requirements
-
-- Arduino IDE (1.8.x or higher)
-- SoftwareSerial library (included with Arduino IDE)
-- Bluetooth terminal app on your mobile device (e.g., Serial Bluetooth Terminal, Bluetooth Terminal HC-05)
-
-## Installation
-
-1. Clone this repository:
+1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/hc06-bluetooth-project.git
+   git clone https://github.com/devshojol/HC-06-Controller.git
+   cd HC-06-Controller
    ```
 
-2. Open the `.ino` file in Arduino IDE
+2. **Install dependencies**
 
-3. Connect your Arduino board via USB
+   ```bash
+   npm install
+   ```
 
-4. Select the correct board and port from Tools menu
+3. **Run the app**
 
-5. Upload the sketch to your Arduino
+   ```bash
+   # Android
+   npx expo run:android --device
 
-## Usage
+   # iOS
+   npx expo run:ios --device
+   ```
 
-### Pairing the HC-06 Module
+### Arduino Setup
 
-1. Power on your Arduino with the HC-06 connected
-2. The HC-06 LED should blink (indicating it's ready to pair)
-3. On your phone/device, scan for Bluetooth devices
-4. Look for "HC-06" or similar name
-5. Pair with default PIN: `1234` or `0000`
+1. **Install Arduino IDE** from [arduino.cc](https://www.arduino.cc/en/software)
 
-### Sending Data from Arduino
+2. **Install SoftwareSerial Library** (usually pre-installed)
 
-The sketch demonstrates three methods:
+<!-- 3. **Upload the sketch**
 
-**1. Manual Send (via Serial Monitor)**
+   - Open `arduino/hc06_car_controller.ino`
+   - Select your Arduino board and port
+   - Click Upload
 
-```arduino
-// Type in Serial Monitor and press Enter
-// Data will be sent to Bluetooth device
+4. **Wiring Diagram**
+
+   ```
+   HC-06 Module:
+   - VCC → 5V
+   - GND → GND
+   - TX  → Arduino Pin 0
+   - RX  → Arduino Pin 1 (use voltage divider 5V→3.3V)
+
+   Motor Driver (L298N or similar):
+   - IN1 → Pin 2 (Left Motor Forward)
+   - IN2 → Pin 3 (Left Motor Backward)
+   - IN3 → Pin 4 (Right Motor Forward)
+   - IN4 → Pin 5 (Right Motor Backward)
+   - ENA → Pin 6 (Speed Control - PWM)
+
+   Other Components:
+   - LED → Pin 13
+   - Horn/Buzzer → Pin 8
+   - Lights → Pin 9
+   ``` -->
+
+## 🎮 Usage
+
+### App Commands
+
+**Movement Controls:**
+
+- `FORWARD` - Move forward
+- `BACKWARD` - Move backward
+- `LEFT` - Turn left
+- `RIGHT` - Turn right
+- `STOP` - Stop all motors
+
+**Speed Control:**
+
+- `SPEED:XX` - Set speed (0-100%)
+
+**Action Buttons:**
+
+- `HORN` - Activate horn
+- `LIGHT` - Toggle lights
+- `TURBO` - Activate turbo mode (3 seconds max speed)
+
+## 📂 Project Structure
+
+```
+hc06-car-controller/
+├── App.js                          # Main app component
+├── components/
+│   └── BluetoothCarController.js   # Car controller component
+├── arduino/
+│   └── hc06_car_controller.ino     # Arduino sketch
+├── android/                        # Android native files
+├── ios/                            # iOS native files
+├── package.json
+├── README.md
+└── LICENSE
 ```
 
-**2. Automatic Send (Periodic)**
+<!--
+## 🔧 Configuration
 
-```arduino
-// Sends data every 2 seconds automatically
-// Useful for sensor readings
+### Adjust Pin Numbers
+
+In the Arduino sketch, modify these pin definitions based on your setup:
+
+```cpp
+#define MOTOR_LEFT_FWD 2
+#define MOTOR_LEFT_BWD 3
+#define MOTOR_RIGHT_FWD 4
+#define MOTOR_RIGHT_BWD 5
+#define MOTOR_SPEED_PIN 6
+#define LED_PIN 13
+#define HORN_PIN 8
+#define LIGHT_PIN 9
 ```
 
-**3. Programmatic Send**
+### Bluetooth Settings
 
-```arduino
-bluetooth.println("Your message here");
-```
+HC-06 default settings:
 
-### Receiving Data on Arduino
+- **Baud Rate:** 9600
+- **Device Name:** HC-06
+- **PIN:** 1234 or 0000
 
-Simply send data from your Bluetooth terminal app, and it will appear in the Serial Monitor and trigger a response.
+To change settings, use AT commands before connecting.
 
-### Supported Commands
+## 🐛 Troubleshooting
 
-- `hello` - Responds with greeting
-- `status` - Returns current counter value
-- Any other text - Echoes back the message
+### App Issues
 
-## Communication Protocol
+**Bluetooth not working:**
 
-- **Baud Rate**: 9600
-- **Connector Type**: RFCOMM (serial port emulation)
-- **Delimiter**: `\n` (newline character)
+- Ensure Bluetooth is enabled on your phone
+- Grant all required permissions
+- Check if HC-06 is powered and paired
 
-The delimiter ensures messages are properly separated. When using `bluetooth.println()`, a newline is automatically appended.
+**Cannot connect to device:**
 
-## Example Applications
+- Make sure HC-06 is not connected to another device
+- Try unpairing and pairing again
+- Restart the app
 
-- Remote sensor monitoring
-- IoT data logging
-- Wireless robot control
-- Home automation
-- Real-time data visualization
-- Arduino-to-smartphone communication
+### Arduino Issues
 
-## Customization
+**Motors not responding:**
 
-You can easily modify the sketch for your needs:
+- Check motor driver connections
+- Verify power supply is adequate
+- Test motors separately
 
-**Send Sensor Data:**
+**No Bluetooth communication:**
 
-```arduino
-int temp = analogRead(A0);
-bluetooth.print("Temperature: ");
-bluetooth.println(temp);
-```
+- Check HC-06 wiring (especially RX/TX)
+- Verify baud rate matches (9600)
+- Check voltage divider for RX pin -->
 
-**Change Auto-send Interval:**
-
-```arduino
-const long interval = 5000; // Change to 5 seconds
-```
-
-**Add Custom Commands:**
-
-```arduino
-if (received.indexOf("led_on") >= 0) {
-  digitalWrite(LED_PIN, HIGH);
-  bluetooth.println("LED turned ON");
-}
-```
-
-## Troubleshooting
-
-**Can't connect to HC-06:**
-
-- Verify wiring connections
-- Check if LED is blinking (pairing mode)
-- Try default PINs: 1234 or 0000
-- Ensure HC-06 is powered (requires ~50mA)
-
-**No data received:**
-
-- Verify baud rate is 9600 on both sides
-- Check TX/RX pins are not swapped
-- Ensure delimiter matches (`\n`)
-
-**Garbled data:**
-
-- Check baud rate settings
-- Add small delay in data reading loop
-- Verify proper voltage levels on RX pin
-
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## 👨‍💻 Author
 
-- Inspired by the Arduino community
-- HC-06 Bluetooth module documentation
-- SoftwareSerial library developers
+**SHOJOL ISLAM**
 
-## Contact
+- GitHub: [@devshojol](https://github.com/devshojol)
 
-For questions or suggestions, please open an issue in this repository.
+## 🙏 Acknowledgments
+
+- [react-native-bluetooth-classic](https://github.com/kenjdavidson/react-native-bluetooth-classic)
+- Arduino Community
+- React Native Community
+
+## 📞 Support
+
+If you have any questions or need help, please open an issue on GitHub.
 
 ---
 
-**Happy Making! 🚀**
+⭐ **Star this repo** if you find it helpful!
+
+---
